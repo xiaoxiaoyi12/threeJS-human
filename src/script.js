@@ -115,23 +115,19 @@ let timer = () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     let date = new Date();
     let h = date.getHours(),
-      m = date.getMinutes(),
-      s = date.getSeconds();
+      m = date.getMinutes();
+    // s = date.getSeconds();
     draw();
     drawDot();
     drawHour(h, m);
     drawMinute(m);
-    drawSecond(s);
+    // drawSecond(s);
     ctx.restore();
   }, 1000)
 }
 
-
-
-
 init();
 function init() {
-
   const container = document.getElementById('container');
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
   camera.position.set(2, 2, - 4);
@@ -186,39 +182,30 @@ function init() {
   const textureLoader = new THREE.TextureLoader();
   loader.load('/textures/glb/stacy.glb', function (gltf) {
     textureLoader.load('/textures/glb/stacy.jpg', (texture) => {
-      console.log(gltf)
       model = gltf.scene;
       const stacy = model.getObjectByName('stacy')
       stacy.material.map = texture
       stacy.material.map.flipY = false;
       scene.add(model);
-
       model.traverse(function (object) {
         if (object.isMesh) object.castShadow = true;
-
       });
       skeleton = new THREE.SkeletonHelper(model);
       skeleton.visible = false;
       scene.add(skeleton);
 
       const animation = gltf.animations[1];
-      // animation.duration = 1;
       mixer = new THREE.AnimationMixer(model);
       const times = [], values = [], scales = [], angles = [];
-      // let date = new Date();
-      // let h = date.getHours(),
-      //   m = date.getMinutes(),
-      //   s = date.getSeconds();
-
-      for (let i = 0; i < 60; i++) {
-        let rad = Math.PI * 2 / 60 * (i);
-        // console.log(rad)
+      let date = new Date();
+      let s = date.getSeconds();
+      for (let i = 0; i < 61; i++) {
+        let rad = Math.PI * 2 / 60 * (i + s - 30);
         times.push(i)
         values.push(radius * 0.7 * Math.sin(rad), 0, -radius * 0.7 * Math.cos(rad))
         scales.push(0.25, 0.25, 0.25)
         angles.push(Math.PI / 2 - rad)
       }
-      console.log(values)
       const posTrack = new THREE.KeyframeTrack('model.position', times, values);
       const scaleTrack = new THREE.KeyframeTrack('model.scale', times, scales);
       const rotateTrack = new THREE.KeyframeTrack('model.rotation[y]', times, angles);
@@ -229,9 +216,8 @@ function init() {
 
       const AnimationAction = mixer.clipAction(clip);
       const AnimationAction1 = mixer.clipAction(clipWalk);
-      // console.log(duration / 60)
       //通过操作Action设置播放方式
-      // AnimationAction.timeScale = duration1 / duration;//默认1，可以调节播放速度
+      AnimationAction.timeScale = 1;//默认1，可以调节播放速度
       AnimationAction.play()
       AnimationAction1.play()
       animate();
@@ -248,7 +234,6 @@ function init() {
   container.appendChild(stats.dom);
   window.addEventListener('resize', onWindowResize);
 }
-
 
 function onWindowResize() {
 
