@@ -6,17 +6,6 @@ import dat from 'dat.gui'
 let scene, renderer, camera, stats, texture;
 let model, skeleton, mixer, clock;
 const gui = new dat.GUI({ name: '改变照相机视角' })
-// const controls = new function () {
-//   this.isVerticalAngle = true;
-// }
-// controls.onClick = (e) => {
-//   console.log(e.target)
-//   console.log(controls.isVerticalAngle)
-// }
-// console.log(controls)
-// let folder = gui.addFolder('照相机视角')
-// folder.add(controls, 'isVerticalAngle')
-
 let canvas = document.createElement("canvas");
 const canvasRadius = 150
 canvas.width = canvasRadius * 2;
@@ -126,13 +115,13 @@ let timer = () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     let date = new Date();
     let h = date.getHours(),
-      m = date.getMinutes(),
-      s = date.getSeconds();
+      m = date.getMinutes();
+    // s = date.getSeconds();
     draw();
     drawDot();
     drawHour(h, m);
     drawMinute(m);
-    drawSecond(s);
+    // drawSecond(s);
     ctx.restore();
   }, 1000)
 }
