@@ -2,9 +2,20 @@ import * as THREE from 'three';
 import './style.css'
 import Stats from 'stats.js';
 import GLTFLoader from 'three-gltf-loader'
-
+import dat from 'dat.gui'
 let scene, renderer, camera, stats, texture;
 let model, skeleton, mixer, clock;
+const gui = new dat.GUI({ name: '改变照相机视角' })
+// const controls = new function () {
+//   this.isVerticalAngle = true;
+// }
+// controls.onClick = (e) => {
+//   console.log(e.target)
+//   console.log(controls.isVerticalAngle)
+// }
+// console.log(controls)
+// let folder = gui.addFolder('照相机视角')
+// folder.add(controls, 'isVerticalAngle')
 
 let canvas = document.createElement("canvas");
 const canvasRadius = 150
@@ -48,7 +59,7 @@ function draw() {
     let rad = Math.PI * 2 / 60 * i;
     let x = Math.cos(rad) * canvasRadius * 0.92,
       y = Math.sin(rad) * canvasRadius * 0.92;
-    if (i % 5 == 0) {
+    if (i % 5 === 0) {
       //小时对应的点
       ctx.beginPath();
       ctx.arc(x, y, 5, 0, Math.PI * 2);
@@ -115,23 +126,28 @@ let timer = () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     let date = new Date();
     let h = date.getHours(),
-      m = date.getMinutes();
-    // s = date.getSeconds();
+      m = date.getMinutes(),
+      s = date.getSeconds();
     draw();
     drawDot();
     drawHour(h, m);
     drawMinute(m);
-    // drawSecond(s);
+    drawSecond(s);
     ctx.restore();
   }, 1000)
 }
-
 init();
 function init() {
   const container = document.getElementById('container');
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
-  camera.position.set(2, 2, - 4);
-  camera.lookAt(0, 1, 0);
+  // camera.position.set(-1, 2, 4)
+  camera.position.set(0, 6, 0) //垂直角度
+
+  let folder = gui.addFolder('照相机视角')
+  folder.add(camera.position, 'x', -10, 10, 1).onChange(val => camera.position.X = val)
+  folder.add(camera.position, 'y', -10, 10, 1).onChange(val => camera.position.Y = val)
+  folder.add(camera.position, 'z', -10, 10, 1).onChange(val => camera.position.Z = val)
+  // console.log(camera.position)
 
   clock = new THREE.Clock();
 
@@ -147,7 +163,7 @@ function init() {
   scene.add(ambient)
 
   const dirLight = new THREE.DirectionalLight(0xffffff);
-  dirLight.position.set(5, 10, -10);
+  dirLight.position.set(5, 10, 20);
   dirLight.castShadow = true;
   dirLight.shadow.mapSize.width = 1024;
   dirLight.shadow.mapSize.height = 1024;
@@ -168,7 +184,7 @@ function init() {
   mesh.receiveShadow = true;
   scene.add(mesh);
   texture = new THREE.CanvasTexture(canvas)
-  texture.rotation = Math.PI
+  // texture.rotation = Math.PI
   texture.center.set(0.5, 0.5);// 设置纹理的旋转中心 默认(0,0)为什么不行呢？ (0.5, 0.5)对应纹理的正中心
   const mesh2 = new THREE.Mesh(new THREE.CircleBufferGeometry(radius, 80 * radius), new THREE.MeshStandardMaterial({ map: texture }));
   mesh2.rotation.x = - Math.PI / 2;
@@ -200,9 +216,9 @@ function init() {
       let date = new Date();
       let s = date.getSeconds();
       for (let i = 0; i < 61; i++) {
-        let rad = Math.PI * 2 / 60 * (i + s - 30);
+        let rad = Math.PI * 2 / 60 * (i + s);
         times.push(i)
-        values.push(radius * 0.7 * Math.sin(rad), 0, -radius * 0.7 * Math.cos(rad))
+        values.push(radius * 0.65 * Math.sin(rad), 0, -radius * 0.65 * Math.cos(rad))
         scales.push(0.25, 0.25, 0.25)
         angles.push(Math.PI / 2 - rad)
       }
@@ -247,6 +263,7 @@ function onWindowResize() {
 function animate() {
   // Render loop
   stats.update();
+  camera.lookAt(0, 1, 0);
   let mixerUpdateDelta = clock.getDelta();
   mixer.update(mixerUpdateDelta);
   timer()
